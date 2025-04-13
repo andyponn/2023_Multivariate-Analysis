@@ -1,0 +1,2 @@
+# 排除此類文檔的語言統計
+*.html linguist-vendored
