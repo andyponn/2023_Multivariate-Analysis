@@ -1,0 +1,164 @@
+traffic.DA = traffic1
+width = NULL
+traffic.DA[,6]
+##新增寬度度欄位 1:窄, 2:中, 3:寬
+for(i in 1:nrow(traffic.DA)){
+  if(traffic.DA[i,6]<15){
+    width[i] = 1
+  } else if(traffic.DA[i,6]<22&traffic.DA[i,6]>=15){
+    width[i] = 2
+  } else{
+    width[i] = 3
+  }
+}
+# mean(traffic.DA[,2])
+# min(traffic.DA[,2])
+# max(traffic.DA[,2])
+traffic.DA = traffic.DA |> mutate(width = width)
+which(traffic.DA$width==1) |> length()
+which(traffic.DA$width==2) |> length()
+which(traffic.DA$width==3) |> length()
+names(traffic.DA)[15:29]
+traffic.DA = traffic.DA[,c(2,3,5,15:27,29)]
+traffic.DA[,17] = traffic.DA[,17] |> as.factor()
+
+str(traffic.DA)
+
+##train&test
+index = sample(1:nrow(traffic.DA), 0.8*nrow(traffic.DA))
+train = traffic.DA[index,]
+test = traffic.DA[-index,]
+
+train1 = train |>
+  filter(width == 1)
+train2 = train |>
+  filter(width==2)
+train3 = train |>
+  filter(width== 3)
+##Wilks.test
+# x = as.matrix(train[,-15])
+# Wilks.test(width~.,data =train,method = 'c')
+
+
+greedy.wilks(width~.,data=train)
+greedy.wilks(width~里程km,data=train)
+greedy.wilks(width~路肩寬度, data=train)
+greedy.wilks(width~小型車數, data=train)
+greedy.wilks(width~大客車數, data=train)
+greedy.wilks(width~大貨車數, data=train)
+greedy.wilks(width~全聯結車數, data=train)
+greedy.wilks(width~半聯結車數,data=train)
+greedy.wilks(width~機車數,data=train)
+greedy.wilks(width~總流量PCU,data=train)
+greedy.wilks(width~總計車公里,data=train)
+greedy.wilks(width~尖峰小時交通量PCU,data=train)
+greedy.wilks(width~快車道數量,data=train)
+greedy.wilks(width~機慢車道數量,data=train)
+
+
+
+
+# size1 = sample(1:nrow(train1), 300)
+# size2 = sample(1:nrow(train2), 300)
+# size3 = sample(1:nrow(train3), 300)
+# 
+# result = NULL
+# for(i in 1:14){
+#   a = cbind(train1[,i][size1], train2[,i][size2], train3[,i][size3])
+#   a = as.data.frame(a)
+#   Sa = cov(a)
+#   D = mahalanobis(a, colMeans(a), Sa)
+#   result[i] = min(D)
+# }
+# result
+
+
+#install.packages('biotools')
+# library(GenAlgo)
+# library(biotools)
+# D2.disc(train[,-15], train[,15])
+# mahalanobis(a, colMeans(a), cov(a))
+
+
+#lda
+# 資料前處理，中心化標準化
+library(tidyverse)
+library(caret)
+preproc.param <- train %>% 
+  preProcess(method = c("center", "scale"))
+
+##刪除合計車輛數這欄位，因為rank會<n
+train.transformed <- preproc.param %>% predict(train)
+train.transformed = train.transformed[,-11]
+test.transformed <- preproc.param %>% predict(test)
+test.transformed = test.transformed[,-11]
+library(MASS)
+# Fit the model
+model.lda <- lda(width~., data = train.transformed)
+# Make predictions
+lda.predictions <- model.lda %>% predict(test.transformed)
+# Model accuracy
+model.lda
+mean(lda.predictions$class==test.transformed$width)
+
+plot(model.lda)
+lda.predictions <- model.lda %>% predict(test.transformed)
+names(lda.predictions)
+
+
+# Predicted classes
+head(lda.predictions$class, 6)
+# Predicted probabilities of class memebership.
+head(lda.predictions$posterior, 6)
+# Linear discriminants
+head(lda.predictions$x, 3)
+
+lda.data <- cbind(train.transformed, predict(model.lda)$x)
+ggplot(lda.data, aes(LD1,LD2)) +
+  geom_point(aes(color = width))
+
+p.x = seq(from = min(lda.predictions$x[,1]), to = max(lda.predictions$x[,1]), length.out =300) #LD1 scores
+p.y = seq(from = min(lda.predictions$x[,2]), to = max(lda.predictions$x[,2]), length.out = 300) 
+plot(p.x)
+plot(p.y)
+
+#contour(x = p.x, y = p.y, z = matrix(lda.predictions$class, nrow = 100, ncol = 100), 
+        #levels = c(1, 2, 3), add = TRUE, drawlabels = FALSE)
+
+
+
+
+###MDA
+#install.packages('mda')
+library(mda)
+model.mda <- mda(width~., data = train.transformed)
+model.mda$weights
+mda.predictions <- model.mda %>% predict(test.transformed)
+predict(model.mda, test.transformed)
+
+mean(mda.predictions == test.transformed$width)
+mda.predictions
+mda.data = cbind(train.transformed, mda.predictions)
+ggplot(test.transformed,aes(x=X1,y=X2,z=y),data= mda.predictions)+
+  geom_point(aes(color = width))
+
+###QDA
+library(MASS)
+model.qda = qda(width~., data = train.transformed)
+model.qda
+qda.predictions = model.qda |> predict(test.transformed)
+mean(qda.predictions$class == test.transformed$width)
+#data.qda = as.data.frame(test.transformed[,'area'], qda.predictions$posterior)
+data.qda
+
+plot(model.qda)
+
+qda.predictions
+##plot  暫時先忽略
+p <- ggplot(train_data, aes(x = X1, y = X2, color = y)) + geom_point() p + 
+  stat_contour(aes(x = X1, y = X2, z = y), data = lda_predict) + ggtitle(“LDA Decision Boundaries”) p + 
+  stat_contour(aes(x = X1, y = X2, z = y), data = qda_predict) + ggtitle(“QDA Decision Boundaries”) p + 
+  stat_contour(aes(x = X1, y = X2, z = y), data = mda_predict) + ggtitle(“MDA Decision Boundaries”) ```
+
+
+contour_data <- expand.grid(X1 = seq(-8, 8, length = 300), X2 = seq(-8, 8, length = 300))

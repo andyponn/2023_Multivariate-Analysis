@@ -1,0 +1,719 @@
+{\rtf1\ansi\ansicpg950\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset136 PingFangTC-Regular;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ##### 
+\f1 \'ae\'c9\'b6\'a1\'bc\'c6\'a6\'43\'a4\'c0\'aa\'52
+\f0  
+\f1 \'b4\'c1\'a4\'a4\'b3\'f8\'a7\'69
+\f0 \
+##### 
+\f1 \'b2\'d5\'ad\'fb
+\f0         
+\f1 \'a1\'47\'b3\'af\'df\'bb\'cb\'a2
+\f0  
+\f1 \'bf\'e0\'ab\'61\'ba\'fb
+\f0 \
+##### 
+\f1 \'bf\'ef\'a5\'ce\'b8\'ea\'ae\'c6
+\f0     
+\f1 \'a1\'47\'a5\'78\'c6\'57\'a5\'e6\'b3\'71\'b8\'ea\'ae\'c6
+\f0 \
+##### Part        
+\f1 \'a1\'47\'a8\'cf\'a5\'ce\'a1\'75\'a6\'61\'a7\'ce\'a1\'76\'a8\'d3\'b9\'c1\'b8\'d5\'b0\'cf\'a7\'4f\'a4\'c0\'aa\'52
+\f0 (DA)\
+##### Pre-required
+\f1 \'a1\'47
+\f0 traffic1 data\
+##### Code
+\f1 \'a7\'f3\'b7\'73\'a4\'e9\'b4\'c1\'a1\'47
+\f0 2023.05.15 \
+\
+\
+##
+\f1 \'bf\'7a\'bf\'ef\'a5\'58\'bb\'dd\'ad\'6e\'aa\'ba\'c5\'dc\'bc\'c6\'a1\'41\'a8\'c3\'b1\'4e\'a4\'c0\'c3\'fe\'c5\'dc\'bc\'c6\'a1\'75\'a6\'61\'a7\'ce\'a1\'76\'b3\'5d\'ac\'b0
+\f0  aim
+\f1 \'a1\'41
+\f0 1=
+\f1 \'a5\'43\'b3\'ae\'b0\'cf
+\f0 ,2=
+\f1 \'a4\'73\'c0\'ad\'b0\'cf
+\f0 ,3=
+\f1 \'a5\'ad\'ad\'ec\'b0\'cf
+\f0 \
+\
+df = traffic1[,c(4,2,3,5,6,15:21,23:27)]\
+df<-df[-c(1011,1012),] ##
+\f1 \'bd\'6e\'ab\'d7\'b3\'6f\'a8\'e2\'b5\'a7\'a6\'b3\'b0\'dd\'c3\'44\'a1\'41\'a4\'a9\'a5\'48\'a7\'52\'b0\'a3
+\f0 \
+\
+cols<- c("
+\f1 \'a6\'61\'a7\'ce
+\f0 ")\
+df[cols] <- lapply(df[cols], factor) \
+levels(df$
+\f1 \'a6\'61\'a7\'ce
+\f0 )\
+names(df)[1]<-"aim"\
+\
+\
+\
+df$aim <- as.numeric(df$aim)\
+df$aim <- as.factor(df$aim)\
+levels(df$aim)\
+\
+\
+\
+##
+\f1 \'a5\'fd\'a4\'c1
+\f0 training testing data\
+set.seed(123)\
+index = sample(1:nrow(df), 0.8*nrow(df))\
+train = df[index,]\
+test = df[-index,]\
+\
+##
+\f1 \'ad\'70\'ba\'e2\'bc\'cb\'a5\'bb\'bc\'c6
+\f0 \
+length(which(train$aim=="1")) #n1=165\
+length(which(train$aim=="2")) #n2=68\
+length(which(train$aim=="3")) #n3=957\
+165/nrow(train)\
+68/nrow(train)\
+957/nrow(train)\
+\
+##
+\f1 \'a8\'fa\'a8\'43\'b2\'d5\'a5\'ad\'a7\'a1
+\f0 \
+library(rrcov)\
+sum(is.na(df))\
+QQ<-Wilks.test(df[,c(2:17)], grouping=df$aim)\
+table<-t(QQ$estimate)\
+table\
+\
+str(train)\
+\
+##
+\f1 \'ad\'70\'ba\'e2
+\f0 lambda\
+library(klaR)\
+vars<-colnames(df)\
+vars<-vars[2:(length(vars))]\
+\
+lambda<-c()\
+F.value<-c()\
+significance<-c()\
+for (var in vars) \{\
+  print(var)\
+  formula <- paste("aim ~", var)\
+  print(as.formula(formula))\
+  model<-greedy.wilks(as.formula(formula), data=train)\
+  lambda[var]<-model$results$Wilks.lambda[1]\
+  F.value[var]<-model$results$F.statistics.overall[1]\
+  significance[var]<-model$results$p.value.overall[1]\
+  #summary(model)\
+\}\
+\
+table <- cbind(table, lambda)\
+table <- cbind(table, F.value)\
+table <- cbind(table, significance)\
+\
+##
+\f1 \'ad\'70\'ba\'e2\'a4\'c0\'b2\'d5
+\f0  maha distance
+\f1 \'a1\'5d\'a4\'c0\'a6\'a8
+\f0 3 Group
+\f1 \'a6\'41\'a8\'fa\'b3\'cc\'a4\'70\'a1\'41\'a8\'c3\'ac\'dd\'ac\'4f\'b1\'71\'ad\'fe\'b8\'cc\'a8\'fa\'a5\'58\'a8\'d3\'aa\'ba\'a1\'5e
+\f0 \
+\
+train<-train.transformed\
+train$aim<-as.character(train$aim)          ##
+\f1 \'b3\'6f\'c3\'e4\'ad\'6e\'a5\'fd\'b1\'4e\'ad\'ec\'a5\'bb\'aa\'ba
+\f0 levels
+\f1 \'c2\'e0\'ad\'bc
+\f0 character
+\f1 \'a1\'41\'a7\'5f\'ab\'68
+\f0 levels
+\f1 \'b3\'cc\'ab\'e1\'c1\'d9\'ac\'4f\'b7\'7c\'ba\'e2\'a6\'a8
+\f0 3\
+\
+train23 = train |>\
+  filter(aim != "1")\
+train13 = train |>\
+  filter(aim!= "2")\
+train12 = train |>\
+  filter(aim!= "3")   \
+\
+train12$aim<-as.factor(train12$aim)        ##
+\f1 \'a6\'41\'b1\'4e
+\f0 character
+\f1 \'c2\'e0\'a6\'a8
+\f0 levels
+\f1 \'a1\'41\'a4\'c0\'b2\'d5\'ad\'70\'ba\'e2
+\f0 maha distance\
+train13$aim<-as.factor(train13$aim)\
+train23$aim<-as.factor(train23$aim)\
+\
+str(train12)\
+str(train13)\
+str(train23)\
+\
+library(GenAlgo)\
+mahavalue12<-c()\
+for (i in 2:17)\{\
+  #print(i)\
+  a<-maha(train12[,i], groups=train12$aim, method = "var")\
+  #print(a)\
+  mahavalue12[i-1]<-as.numeric(a)\
+\}\
+\
+mahavalue13<-c()\
+for (i in 2:17)\{\
+  #print(i)\
+  a<-maha(train13[,i], groups=train13$aim, method = "var")\
+  #print(a)\
+  mahavalue13[i-1]<-as.numeric(a)\
+\}\
+\
+mahavalue23<-c()\
+for (i in 2:17)\{\
+  #print(i)\
+  a<-maha(train23[,i], groups=train23$aim, method = "var")\
+  #print(a)\
+  mahavalue23[i-1]<-as.numeric(a)\
+\}\
+\
+table <- cbind(table, mahavalue12)         \
+table <- cbind(table, mahavalue13)\
+table <- cbind(table, mahavalue23) \
+\
+\
+table<-as.data.frame(table)\
+library(matrixStats)\
+table$maha_min<-rowMins(as.matrix(table[,c(12,13,14)]))\
+\
+##
+\f1 \'a7\'e4\'a5\'58\'ac\'4f\'ad\'fe\'ad\'d3
+\f0 group\
+for(i in 1:length(table$maha_min)) \{\
+  if(table$maha_min[i] == mahavalue12[i])\{\
+    table$between[i] ="1 and 2"\
+  \} else if(table$maha_min[i] == mahavalue13[i])\{\
+    table$between[i] ="1 and 3"\
+  \} else if(table$maha_min[i] == mahavalue23[i])\{\
+    table$between[i] ="2 and 3"\
+  \} else\{\
+    table$between[i] ="Na"\
+  \}\
+\}\
+\
+\
+table[1:4] <- round(table[1:4], 3)                         ##
+\f1 \'b3\'6f\'a4\'40\'b1\'69\'b4\'4e\'ac\'4f\'c2\'b2\'a9\'f6\'aa\'a9\'aa\'ba
+\f0 table 5\
+write.csv(table, "fortable
+\f1 \'bc\'65\'ab\'d7
+\f0 .csv", row.names=T)               ##
+\f1 \'a4\'e8\'ab\'4b\'b8\'ea\'ae\'c6\'b6\'d7\'a5\'58\'ab\'e1\'c4\'f2\'ae\'d1\'ad\'b1\'b3\'f8\'a7\'69\'a8\'cf\'a5\'ce
+\f0 \
+\
+#
+\f1 \'b8\'ea\'ae\'c6\'ab\'65\'b3\'42\'b2\'7a\'a1\'41\'a4\'a4\'a4\'df\'a4\'c6\'bc\'d0\'b7\'c7\'a4\'c6
+\f0 \
+library(caret)\
+library(lattice)\
+preproc.param <- train %>% \
+  preProcess(method = c("center", "scale"))\
+\
+train.transformed <- preproc.param %>% predict(train)\
+test.transformed <- preproc.param %>% predict(test)\
+\
+##LDA\
+library(MASS)                                                #
+\f1 \'c5\'dc\'bc\'c6\'ac\'44\'bf\'ef\'bc\'d0\'b7\'c7\'a1\'5d
+\f0 labmda, maha distance
+\f1 \'a1\'5e
+\f0 \
+model.0 <- lda(aim~., data = train.transformed)              #
+\f1 \'ab\'d8\'bc\'d2\'a1\'5d\'ab\'fc\'bc\'d0\'b3\'cc\'c0\'75\'aa\'ba
+\f0 3
+\f1 \'ad\'d3\'b6\'69\'a6\'e6\'bd\'75\'a9\'ca\'b2\'d5\'a6\'58\'a1\'5e
+\f0 \
+model.1 <- lda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km, data = train.transformed)\
+#model.2 <- lda(aim~
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, data = train.transformed)\
+#model.3 <- lda(aim~
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+model.4 <- lda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, data = train.transformed)\
+model.5 <- lda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+model.6 <- lda(aim~
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+model.7 <- lda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+\
+\
+predictions.0 <- model.0 %>% predict(test.transformed)       #
+\f1 \'b9\'77\'b4\'fa
+\f0 (
+\f1 \'a9\'f1\'a4\'4a\'b4\'fa\'b8\'d5\'b6\'b0
+\f0 )\
+predictions.1 <- model.1 %>% predict(test.transformed)\
+predictions.2 <- model.2 %>% predict(test.transformed)\
+predictions.3 <- model.3 %>% predict(test.transformed)\
+predictions.4 <- model.4 %>% predict(test.transformed)\
+predictions.5 <- model.5 %>% predict(test.transformed)\
+predictions.6 <- model.6 %>% predict(test.transformed)\
+predictions.7 <- model.7 %>% predict(test.transformed)\
+\
+\
+mean(predictions.0$class==test.transformed$aim)              #Model accuracy (
+\f1 \'bc\'d2\'ab\'ac\'a5\'fe\'a9\'f1\'b7\'c7\'bd\'54\'b2\'76
+\f0 87.91%)\
+mean(predictions.1$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 83.55%)\
+mean(predictions.2$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 81.20%)\
+mean(predictions.3$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 80.87%)\
+mean(predictions.4$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 84.22%) prefered V\
+mean(predictions.5$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 83.89%)\
+mean(predictions.6$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 81.20%)\
+mean(predictions.7$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 84.22%)\
+\
+##lda
+\f1 \'c3\'b8\'b9\'cf
+\f0 \
+library(MASS)\
+library(ggplot2)\
+library(scales)\
+fit <- lda(aim ~ ., data = train.transformed)\
+datPred <- data.frame(aim=predict(model.4)$class,predict(model.4)$x)\
+\
+\
+\
+#Create decision boundaries\
+fit2 <- lda(aim ~ LD1 + LD2, data=datPred)\
+ld1lim <- expand_range(c(min(datPred$LD1),max(datPred$LD1)),mul=0.05)\
+ld2lim <- expand_range(c(min(datPred$LD2),max(datPred$LD2)),mul=0.05)\
+\
+ld1 <- seq(ld1lim[[1]], ld1lim[[2]], length.out=300)\
+ld2 <- seq(ld2lim[[1]], ld2lim[[2]], length.out=300)\
+newdat <- expand.grid(list(LD1=ld1,LD2=ld2))\
+preds <-predict(fit2,newdata=newdat)\
+predclass <- preds$class\
+postprob <- preds$posterior\
+df <- data.frame(x=newdat$LD1, y=newdat$LD2, class=predclass)\
+df$classnum <- as.numeric(df$class)\
+df <- cbind(df,postprob)\
+colorfun <- function(n,l=65,c=100) \{ hues = seq(15, 375, length=n+1); hcl(h=hues, l=l, c=c)[1:n] \} # default ggplot2 colours\
+colors <- colorfun(3)\
+colorslight <- colorfun(3,l=90,c=50)\
+lda.data <- cbind(test.transformed, predict(model.4,test.transformed)$x)\
+\
+ggplot(lda.data, aes(LD1,LD2)) +\
+  geom_point(aes(color = aim))+\
+  geom_contour(data=df, aes(x=x, y=y, z=classnum), colour="red2", alpha=0.5, breaks=c(1.5,2.5))+\
+  geom_raster(data=df, aes(x=x, y=y, fill = factor(class)),alpha=0.2,show.legend =FALSE)\
+\
+\
+##train confusionM\
+confusionMatrix(factor(train.transformed$aim), factor(predict(model.0,train.transformed)$class))\
+##test confusionM\
+confusionMatrix(factor(test.transformed$aim), factor(predict(model.0,test.transformed)$class))\
+\
+\
+##train confusionM\
+confusionMatrix(factor(train.transformed$aim), factor(predict(model.4,train.transformed)$class))\
+##test confusionM\
+confusionMatrix(factor(test.transformed$aim), factor(predict(model.4,test.transformed)$class))\
+\
+\
+##QDA\
+\
+\
+library(dplyr)\
+library(mvnormalTest)\
+norm_df = train[, 2:17]\
+norm_df<-sample_n(norm_df,100)\
+mardia(norm_df)\
+\
+qmodel.0 <- qda(aim~., data = train.transformed)              #
+\f1 \'ab\'d8\'bc\'d2\'a1\'5d\'ab\'fc\'bc\'d0\'b3\'cc\'c0\'75\'aa\'ba
+\f0 3
+\f1 \'ad\'d3\'b6\'69\'a6\'e6\'bd\'75\'a9\'ca\'b2\'d5\'a6\'58\'a1\'5e
+\f0 \
+qmodel.1 <- qda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km, data = train.transformed)\
+qmodel.2 <- qda(aim~
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, data = train.transformed)\
+qmodel.3 <- qda(aim~
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+qmodel.4 <- qda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, data = train.transformed)\
+qmodel.5 <- qda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+qmodel.6 <- qda(aim~
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+qmodel.7 <- qda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+\
+\
+q.predictions.0 <- qmodel.0 %>% predict(test.transformed)       #
+\f1 \'b9\'77\'b4\'fa
+\f0 (
+\f1 \'a9\'f1\'a4\'4a\'b4\'fa\'b8\'d5\'b6\'b0
+\f0 )\
+q.predictions.1 <- qmodel.1 %>% predict(test.transformed)\
+q.predictions.2 <- qmodel.2 %>% predict(test.transformed)\
+q.predictions.3 <- qmodel.3 %>% predict(test.transformed)\
+q.predictions.4 <- qmodel.4 %>% predict(test.transformed)\
+q.predictions.5 <- qmodel.5 %>% predict(test.transformed)\
+q.predictions.6 <- qmodel.6 %>% predict(test.transformed)\
+q.predictions.7 <- qmodel.7 %>% predict(test.transformed)\
+\
+\
+mean(q.predictions.0$class==test.transformed$aim)              #Model accuracy (
+\f1 \'bc\'d2\'ab\'ac\'a5\'fe\'a9\'f1\'b7\'c7\'bd\'54\'b2\'76
+\f0 72.48%)\
+mean(q.predictions.1$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 81.20%)\
+mean(q.predictions.2$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 80.87%)\
+mean(q.predictions.3$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 80.87%)\
+mean(q.predictions.4$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 83.22%) \
+mean(q.predictions.5$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 82.88%)\
+mean(q.predictions.6$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 84.22%) prefered V\
+mean(q.predictions.7$class==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 84.22%) \
+\
+##QDA
+\f1 \'c3\'b8\'b9\'cf
+\f0 \
+\
+qp = test.transformed |> \
+  ggplot()+\
+  geom_point(aes(
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , 
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m,color=aim,shape=aim), size=2.5)+\
+  labs(x = 'amount of fast lane',\
+       y = 'width of road(m)')\
+contour_data <- expand.grid(
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0  = seq(-4, 8, length = 300), 
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m = seq(-8, 8, length = 300))\
+qda_predict <- data.frame(contour_data, y = as.numeric(predict(qmodel.6, contour_data)$class))\
+qp+stat_contour(aes(x=
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , y=
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, z=y), data=qda_predict)+geom_raster(data=qda_predict, aes(x=
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , y=
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, fill = factor(y)),alpha=0.2,show.legend =FALSE)\
+\
+##train confusionM\
+confusionMatrix(factor(train.transformed$aim), factor(predict(qmodel.0,train.transformed)$class))\
+##test confusionM\
+confusionMatrix(factor(test.transformed$aim), factor(predict(qmodel.4,test.transformed)$class))\
+\
+\
+##MDA\
+library(mda)\
+m.model.0 <- mda(aim~., data = train.transformed)              #
+\f1 \'ab\'d8\'bc\'d2\'a1\'5d\'ab\'fc\'bc\'d0\'b3\'cc\'c0\'75\'aa\'ba
+\f0 3
+\f1 \'ad\'d3\'b6\'69\'a6\'e6\'bd\'75\'a9\'ca\'b2\'d5\'a6\'58\'a1\'5e
+\f0 \
+m.model.1 <- mda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km, data = train.transformed)\
+m.model.2 <- mda(aim~
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, data = train.transformed)\
+m.model.3 <- mda(aim~
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+m.model.4 <- mda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, data = train.transformed,keep.fitted=T)\
+m.model.5 <- mda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+m.model.6 <- mda(aim~
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+m.model.7 <- mda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+\
+\
+m.predictions.0 <- m.model.0 %>% predict(test.transformed)       #
+\f1 \'b9\'77\'b4\'fa
+\f0 (
+\f1 \'a9\'f1\'a4\'4a\'b4\'fa\'b8\'d5\'b6\'b0
+\f0 )\
+m.predictions.1 <- m.model.1 %>% predict(test.transformed)\
+m.predictions.2 <- m.model.2 %>% predict(test.transformed)\
+m.predictions.3 <- m.model.3 %>% predict(test.transformed)\
+m.predictions.4 <- m.model.4 %>% predict(test.transformed)\
+m.predictions.5 <- m.model.5 %>% predict(test.transformed)\
+m.predictions.6 <- m.model.6 %>% predict(test.transformed)\
+m.predictions.7 <- m.model.7 %>% predict(test.transformed)\
+\
+\
+mean(m.predictions.0==test.transformed$aim)              #Model accuracy (
+\f1 \'bc\'d2\'ab\'ac\'a5\'fe\'a9\'f1\'b7\'c7\'bd\'54\'b2\'76
+\f0 88.25%)\
+mean(m.predictions.1==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 82.21%)\
+mean(m.predictions.2==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 81.20%)\
+mean(m.predictions.3==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 79.53%)\
+mean(m.predictions.4==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 84.89%)  prefered V\
+mean(m.predictions.5==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 80.20%)\
+mean(m.predictions.6==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 81.20%) \
+mean(m.predictions.7==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 84.56%) \
+\
+##mda
+\f1 \'c3\'b8\'b9\'cf
+\f0 \
+mp = train.transformed |> \
+  ggplot()+\
+  geom_point(aes(
+\f1 \'a8\'bd\'b5\'7b
+\f0 km, 
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m,color=aim,shape=aim), size=2.5)+\
+  labs(x = 'amount of fast lane',\
+       y = 'width of road(m)')\
+contour_data <- expand.grid(
+\f1 \'a8\'bd\'b5\'7b
+\f0 km = seq(-4, 8, length = 300), 
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m = seq(-8, 8, length = 300))\
+mda_predict <- data.frame(contour_data, y = as.numeric(predict(m.model.4, contour_data)))\
+mp+stat_contour(aes(x=
+\f1 \'a8\'bd\'b5\'7b
+\f0 km, y=
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, z=y), data=mda_predict)+geom_raster(data=mda_predict, aes(x=
+\f1 \'a8\'bd\'b5\'7b
+\f0 km, y=
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, fill = factor(y)),alpha=0.2,show.legend =FALSE)\
+\
+\
+##train confusionM\
+confusionMatrix(factor(train.transformed$aim), factor(predict(m.model.0,train.transformed)))\
+##test confusionM\
+confusionMatrix(factor(test.transformed$aim), factor(predict(m.model.0,test.transformed)))\
+\
+\
+\
+##CDA(
+\f1 \'a5\'fd\'a9\'bf\'b2\'a4\'a1\'e3\'a1\'e3
+\f0 )\
+library(candisc)\
+traffic.mod <- lm(cbind(
+\f1 \'a8\'bd\'b5\'7b
+\f0 km,
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m,
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 )~aim , data=train.transformed)\
+can.0 <- candisc(traffic.mod, data=train.transformed)\
+\
+\
+\
+## FDA\
+library(mda)\
+f.model.0 <- fda(aim~., data = train.transformed)              #
+\f1 \'ab\'d8\'bc\'d2\'a1\'5d\'ab\'fc\'bc\'d0\'b3\'cc\'c0\'75\'aa\'ba
+\f0 3
+\f1 \'ad\'d3\'b6\'69\'a6\'e6\'bd\'75\'a9\'ca\'b2\'d5\'a6\'58\'a1\'5e
+\f0 \
+f.model.1 <- fda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km, data = train.transformed)\
+f.model.2 <- fda(aim~
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, data = train.transformed)\
+f.model.3 <- fda(aim~
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+f.model.4 <- fda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, data = train.transformed,keep.fitted=T)\
+f.model.5 <- fda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+f.model.6 <- fda(aim~
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+f.model.7 <- fda(aim~
+\f1 \'a8\'bd\'b5\'7b
+\f0 km+
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m+
+\f1 \'a7\'d6\'a8\'ae\'b9\'44\'bc\'c6\'b6\'71
+\f0 , data = train.transformed)\
+\
+\
+f.predictions.0 <- f.model.0 %>% predict(test.transformed)       #
+\f1 \'b9\'77\'b4\'fa
+\f0 (
+\f1 \'a9\'f1\'a4\'4a\'b4\'fa\'b8\'d5\'b6\'b0
+\f0 )\
+f.predictions.1 <- f.model.1 %>% predict(test.transformed)\
+f.predictions.2 <- f.model.2 %>% predict(test.transformed)\
+f.predictions.3 <- f.model.3 %>% predict(test.transformed)\
+f.predictions.4 <- f.model.4 %>% predict(test.transformed)\
+f.predictions.5 <- f.model.5 %>% predict(test.transformed)\
+f.predictions.6 <- f.model.6 %>% predict(test.transformed)\
+f.predictions.7 <- f.model.7 %>% predict(test.transformed)\
+\
+\
+mean(f.predictions.0==test.transformed$aim)              #Model accuracy (
+\f1 \'bc\'d2\'ab\'ac\'a5\'fe\'a9\'f1\'b7\'c7\'bd\'54\'b2\'76
+\f0 87.91%)\
+mean(f.predictions.1==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 83.55%)\
+mean(f.predictions.2==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 81.20%)\
+mean(f.predictions.3==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 80.87%)\
+mean(f.predictions.4==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 84.22%)  prefered V\
+mean(f.predictions.5==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 83.89%)\
+mean(f.predictions.6==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 81.20%) \
+mean(f.predictions.7==test.transformed$aim)              #(
+\f1 \'bc\'d2\'ab\'ac\'b7\'c7\'bd\'54\'b2\'76
+\f0 84.22%) \
+\
+\
+fp = test.transformed |> \
+  ggplot()+\
+  geom_point(aes(
+\f1 \'a8\'bd\'b5\'7b
+\f0 km, 
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m,color=aim,shape=aim), size=2.5)\
+contour_data <- expand.grid(
+\f1 \'a8\'bd\'b5\'7b
+\f0 km = seq(-4, 8, length = 300), 
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m = seq(-8, 8, length = 300))\
+mda_predict <- data.frame(contour_data, y = as.numeric(predict(model, contour_data)))\
+mp+stat_contour(aes(x=
+\f1 \'a8\'bd\'b5\'7b
+\f0 km, y=
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, z=y,), data=mda_predict)+geom_raster(data=mda_predict, aes(x=
+\f1 \'a8\'bd\'b5\'7b
+\f0 km, y=
+\f1 \'b8\'f4\'ad\'b1\'bc\'65\'ab\'d7
+\f0 m, fill = factor(y)),alpha=0.2,show.legend =FALSE)\
+\
+}
